@@ -133,6 +133,19 @@ $(function () {
   var chord_star = false;
   var chord_star_timer = null;
   var focus_first_after_list = false;
+  var focus_first_timer = null;
+
+  // arm the "auto-select first row" flag with a safety timeout so a no-op
+  // navigation (e.g. `g i` while already on inbox emits no listupdate) doesn't
+  // leave the flag set and steal focus on the next unrelated listupdate
+  function arm_focus_first() {
+    focus_first_after_list = true;
+    if (focus_first_timer) clearTimeout(focus_first_timer);
+    focus_first_timer = setTimeout(function () {
+      focus_first_after_list = false;
+      focus_first_timer = null;
+    }, 2000);
+  }
 
   function set_chord_star() {
     chord_star = true;
@@ -165,6 +178,7 @@ $(function () {
   rcmail.addEventListener('listupdate', function () {
     if (!focus_first_after_list) return;
     focus_first_after_list = false;
+    if (focus_first_timer) { clearTimeout(focus_first_timer); focus_first_timer = null; }
     var ml = rcmail.message_list;
     if (ml && ml.select_first) ml.select_first();
   });
@@ -222,14 +236,15 @@ $(function () {
 
   $(document).keypress(function (e) {
     // ignore keys while typing into form fields
-    if ($("*:focus").is("textarea, input")) return true;
+    var focused = document.activeElement;
+    if (focused && (focused.tagName === 'TEXTAREA' || focused.tagName === 'INPUT')) return true;
 
     var task = rcmail.env.task;
     var action = rcmail.env.action;
 
     // compose: Ctrl+Enter sends
     if (action == 'compose') {
-      if (e.which == 13 && e.ctrlKey && $("*:focus").is("#composebody")) {
+      if (e.which == 13 && e.ctrlKey && focused && focused.id === 'composebody') {
         rcmail.command('send');
         return false;
       }
@@ -257,7 +272,7 @@ $(function () {
     // resolve pending "g <key>" chord
     if (chord_g) {
       consume_chord_g();
-      focus_first_after_list = true;
+      arm_focus_first();
       switch (e.which) {
         case 110: rcmail.command('nextpage');      return false; // g n
         case 112: rcmail.command('previouspage');  return false; // g p
@@ -269,7 +284,6 @@ $(function () {
           if (rcmail.env.ks_drafts_mbox) rcmail.command('list', rcmail.env.ks_drafts_mbox);
           return false;
       }
-      focus_first_after_list = false;
       return false; // swallow unrecognized chord follow-ups
     }
 
