@@ -1,10 +1,12 @@
 # keyboard_shortcuts
 
-Gmail-style keyboard shortcuts for Roundcube. Forked down from Gene Hawkins'
-[texxasrulez/keyboard_shortcuts](https://github.com/texxasrulez/keyboard_shortcuts);
-the help-launcher icon, jqueryui dialog skinning, localization, and all
-non-Gmail bindings were stripped so the binding surface is tight and there are
-no destructive shortcuts on bare single letters.
+Gmail-style keyboard shortcuts for Roundcube. Originally written 14 years ago by
+[corbosman](https://github.com/corbosman/keyboard_shortcuts), later picked up
+and maintained by Gene Hawkins
+([texxasrulez/keyboard_shortcuts](https://github.com/texxasrulez/keyboard_shortcuts));
+this fork strips the help-launcher icon, jqueryui dialog skinning, localization,
+and all non-Gmail bindings so the binding surface is tight and there are no
+destructive shortcuts on bare single letters.
 
 ## Install
 
